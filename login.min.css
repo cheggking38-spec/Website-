@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ICICI Bank - Personal Banking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#f37021",
+              "primary-dark": "#e05c0d",
+              "background-light": "#FDF9F9",
+              "background-dark": "#121212",
+              "card-light": "#FFFFFF",
+              "card-dark": "#1E1E1E",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "12px",
+            },
+          },
+        },
+      };
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Notice Header -->
+<div class="bg-[#dce3ea] dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[11px] sm:text-xs text-center py-2 px-3 font-medium border-b border-slate-300/40">
+  Calls from ICICI Bank beginning with 1600 are official and legitimate
+</div>
+
+<!-- Main Navigation Header -->
+<header class="sticky top-0 z-50 bg-primary px-3 sm:px-4 py-2.5 flex items-center justify-between shadow-md">
+<div class="flex items-center gap-2">
+<a href="index.html" class="flex items-center">
+<img src="img/app-logo.png" alt="ICICI Bank Logo" class="h-7 sm:h-8 w-auto brightness-0 invert"/>
+</a>
+</div>
+<div class="flex items-center gap-2 sm:gap-3">
+<a href="tel:18001080" class="text-white hover:opacity-80 p-1 rounded-full flex items-center justify-center transition-opacity" title="Call Us">
+<span class="material-icons-round text-xl">phone</span>
+</a>
+<button onclick="window.location.href='login.html'" class="text-white hover:opacity-80 p-1 rounded-full flex items-center justify-center transition-opacity" title="Search">
+<span class="relative flex items-center justify-center">
+<span class="material-icons-round text-xl">search</span>
+<span class="absolute -bottom-1 -right-1 bg-white text-primary font-bold text-[7px] leading-none px-0.5 py-0.2 rounded">AI</span>
+</span>
+</button>
+<button onclick="window.location.href='login.html'" class="text-white hover:opacity-80 p-1 rounded-full flex items-center justify-center transition-opacity" title="Favorites">
+<span class="material-icons-round text-xl">favorite</span>
+</button>
+<button onclick="window.location.href='login.html'" class="bg-white text-slate-800 hover:bg-slate-100 font-semibold text-xs sm:text-sm px-3.5 py-1 rounded-xl shadow-sm transition-colors">
+Login
+</button>
+<button class="text-white hover:opacity-80 p-1 rounded-lg transition-opacity">
+<span class="material-icons-round text-2xl">menu</span>
+</button>
+</div>
+</header>
+<section class="relative overflow-hidden pt-4 px-4">
+<div class="relative rounded-2xl overflow-hidden aspect-[16/9] shadow-lg" id="bannerCarousel">
+<div class="relative w-full h-full">
+<img alt="Banner 1" class="banner-image w-full h-full object-cover transition-opacity duration-500 ease-in-out" src="img/banner1.png" data-index="0" style="opacity: 1;"/>
+<img alt="Banner 2" class="banner-image w-full h-full object-cover transition-opacity duration-500 ease-in-out absolute inset-0" src="img/banner2.png" data-index="1" style="opacity: 0;"/>
+<img alt="Banner 3" class="banner-image w-full h-full object-cover transition-opacity duration-500 ease-in-out absolute inset-0" src="img/banner3.png" data-index="2" style="opacity: 0;"/>
+<div class="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent flex flex-col justify-center p-6">
+</div>
+</div>
+</div>
+<div class="flex justify-center gap-2 mt-4" id="dotsContainer">
+<span class="banner-dot w-2 h-2 rounded-full bg-primary cursor-pointer transition-all duration-300" data-slide="0"></span>
+<span class="banner-dot w-2 h-2 rounded-full bg-primary/20 cursor-pointer transition-all duration-300" data-slide="1"></span>
+<span class="banner-dot w-2 h-2 rounded-full bg-primary/20 cursor-pointer transition-all duration-300" data-slide="2"></span>
+</div>
+</section>
+
+<script>
+let currentSlide = 0;
+const totalSlides = 3;
+const bannerImages = document.querySelectorAll('.banner-image');
+const dots = document.querySelectorAll('.banner-dot');
+
+function showSlide(n) {
+  currentSlide = (n + totalSlides) % totalSlides;
+  
+  // Hide all images
+  bannerImages.forEach(img => img.style.opacity = '0');
+  
+  // Show current image
+  bannerImages[currentSlide].style.opacity = '1';
+  
+  // Update dots
+  dots.forEach((dot, index) => {
+    if (index === currentSlide) {
+      dot.classList.remove('bg-primary/20');
+      dot.classList.add('bg-primary');
+    } else {
+      dot.classList.remove('bg-primary');
+      dot.classList.add('bg-primary/20');
+    }
+  });
+}
+
+// Click events for dots
+dots.forEach(dot => {
+  dot.addEventListener('click', (e) => {
+    const slideIndex = parseInt(e.target.getAttribute('data-slide'));
+    showSlide(slideIndex);
+  });
+});
+
+// Auto-rotate carousel every 5 seconds
+setInterval(() => {
+  showSlide(currentSlide + 1);
+}, 5000);
+</script>
+<section class="mt-6 px-4">
+<div class="bg-slate-100 dark:bg-slate-800 rounded-2xl p-4">
+<h2 class="text-center font-bold text-slate-800 dark:text-slate-200 mb-4">Key Updates</h2>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar snap-x">
+<div class="min-w-[85%] snap-center rounded-xl overflow-hidden shadow-sm bg-white dark:bg-card-dark">
+<img alt="Update 1" class="w-full h-48 object-cover" src="img/update1.png"/>
+</div>
+<div class="min-w-[85%] snap-center rounded-xl overflow-hidden shadow-sm bg-white dark:bg-card-dark">
+<img alt="Update 2" class="w-full h-48 object-cover" src="img/update2.png"/>
+</div>
+</div>
+</div>
+</section>
+<section class="mt-8 px-4 text-center">
+<div class="max-w-xs mx-auto mb-6">
+<img alt="Happy couple with home symbol" class="rounded-3xl shadow-xl mx-auto" src="img/home.png"/>
+</div>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Apply for ICICI Bank Credit Card Online - Get Instant Approval</h2>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed px-2">
+            Credit Cards serve as convenient financial tools, providing you with the ease of managing your expenses seamlessly. Opting for an ICICI Bank Credit Card opens doors to a world of convenience.
+        </p>
+</section>
+<section class="mt-10 px-6 space-y-12 pb-10">
+<div class="relative bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 pt-10 text-center">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
+<span class="material-icons-round">security</span>
+</div>
+<h3 class="font-bold text-primary text-lg uppercase tracking-wide">Card Protection Activation</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-3 mb-6">
+                Activate your Card Protection Plan to safeguard your card against unauthorized transactions and fraud.
+            </p>
+<button onclick="window.location.href='login.html'" class="w-full py-2 border border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors">
+                Activate Now
+            </button>
+</div>
+
+<div class="relative bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 pt-10 text-center">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
+<span class="material-icons-round">stars</span>
+</div>
+<h3 class="font-bold text-primary text-lg uppercase tracking-wide">Reward Points Redeem</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-3 mb-6">
+                Redeem your accumulated reward points for exciting gifts, vouchers, and more.
+            </p>
+<button onclick="window.location.href='login.html'" class="w-full py-2 border border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors">
+                Redeem Now
+            </button>
+</div>
+
+<div class="relative bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 pt-10 text-center">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
+<span class="material-icons-round">stars</span>
+</div>
+<h3 class="font-bold text-primary text-lg uppercase tracking-wide">Limit Increase Application</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-3 mb-6">
+                Apply for a credit limit increase on your ICICI Bank credit card to enjoy higher spending power.
+            </p>
+<button onclick="window.location.href='login.html'" class="w-full py-2 border border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors">
+                Apply Now
+            </button>
+</div>
+
+<div class="relative bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 pt-10 text-center">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
+<span class="material-icons-round">block</span>
+</div>
+<h3 class="font-bold text-primary text-lg uppercase tracking-wide">Card Block Application</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-3 mb-6">
+                A card block application is a letter to a bank manager requesting that your card be blocked.
+            </p>
+<button onclick="window.location.href='login.html'" class="w-full py-2 border border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors">
+                Blocked Now
+            </button>
+</div>
+
+<div class="relative bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 pt-10 text-center">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
+<span class="material-icons-round">security</span>
+</div>
+<h3 class="font-bold text-primary text-lg uppercase tracking-wide">Card Protection Deactivation</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-3 mb-6">
+                Deactivate your Card Protection Plan if you no longer require the service.
+            </p>
+<button onclick="window.location.href='login.html'" class="w-full py-2 border border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors">
+                Deactivate Now
+            </button>
+</div>
+</section>
+<section class="px-4 space-y-4 mb-10">
+<div class="relative rounded-2xl overflow-hidden h-44 shadow-lg group">
+<img alt="Personal Loan Promo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAELPkcdGy4DOENV_b8LA4Tz7F3rp5-jVeiEf8_W8R75g4LbrRZQnf66RjSu3Q5H2ues4ACCzMP_j3tx23cmul-ce_Ex3p-d49GzxoYqTyKqF_CGVkG55TlXFqeWv7tvJdyKyeE3Yjc2oNzsTTlENXGzZKqFs_6KVGbRpvmhOX6IBoV_BHIQBKfZVGU7kNT5IWrrctNlPhFuQmGbsIZrcc7ISIotQUUIIpMC_zd_bMYLMPhlLqcjB1KtfTW86mv3lgP7JFhexk6-FA"/>
+<div class="absolute inset-0 bg-primary/40 flex flex-col justify-end p-5">
+<span class="bg-white/90 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mb-2">24x7 Personal Loan</span>
+<h4 class="text-white font-bold text-xl mb-3">Interest Rate &lt; 1% p.m.*</h4>
+<button onclick="window.location.href='login.html'" class="bg-primary text-white text-sm font-bold px-6 py-2 rounded-lg w-fit">Apply Now</button>
+</div>
+</div>
+<div class="relative rounded-2xl overflow-hidden h-44 shadow-lg">
+<img alt="NRI Services Promo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl0JouiqkeZBTDLHlZQAQO-yiYzzyjbWY3JWPAKDFVpBId0VnrVznBtBeporysQouOpbwshRcbr_-dg8NOg3uTrVkBVQU9EHQsXxAS5qSdAVGKqcYQwlgaRujE7T_ojLhSrS9H5rDT17fn6TaUwkyxlHKyjl_4tjuWnjIjoK67AJq_FaC8v_LTSU01N1AiTYwbDaEn-icxBe7RGSkBoVBz3eScAA9IfUBucpEn5BEPXEFroOkPF_BOE8H4sFIReSJA6pm49XujeqU"/>
+<div class="absolute inset-0 bg-slate-900/40 flex flex-col justify-end p-5">
+<h4 class="text-white font-bold text-xl mb-1">Avail comprehensive</h4>
+<p class="text-white text-lg mb-3">NRI Banking Services</p>
+<button onclick="window.location.href='login.html'" class="bg-primary text-white text-sm font-bold px-6 py-2 rounded-lg w-fit">Explore Now</button>
+</div>
+</div>
+</section>
+<footer class="bg-primary text-white px-6 py-10 rounded-t-[0px]">
+<div class="space-y-8">
+<div>
+<h5 class="font-bold text-lg mb-4 border-b border-white/20 pb-2">Loans</h5>
+<ul class="space-y-3">
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Home Loans</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Plot Loans</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> House Renovation Loans</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> NRI Home Loans</li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-lg mb-4 border-b border-white/20 pb-2">Useful Links</h5>
+<ul class="space-y-3">
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Training Centre</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Home Buyer's Guide</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Sarfaesi Notice</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Blogs</li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-lg mb-4 border-b border-white/20 pb-2">Contact Us</h5>
+<ul class="space-y-3">
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Service Request / Queries</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Helpline Number</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Locate Us</li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-lg mb-4 border-b border-white/20 pb-2">Calculators</h5>
+<ul class="space-y-3">
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Home Loan Interest Rates</li>
+<li class="flex items-center gap-2 text-sm opacity-90"><span class="material-icons-round text-xs">chevron_right</span> Home Loan EMI Calculator</li>
+</ul>
+</div>
+</div>
+<div class="mt-12 pt-8 border-t border-white/10 text-center text-xs opacity-60">
+<p>© Copyright ICICI Bank. All Rights Reserved.</p>
+</div>
+</footer> 
+
+</body></html>
